@@ -70,79 +70,74 @@
   <div class="container" id="petContainer"></div>
 
   <script>
-    function loadPets() {
-      const pets = JSON.parse(localStorage.getItem("pets")) || [];
-      const container = document.getElementById("petContainer");
-      container.innerHTML = "";
+      // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-      if (pets.length === 0) {
-        container.innerHTML = "<p>No pets found! Add some from the Add Pet page.</p>";
-        return;
-      }
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAH5I_sIv9EIpbVf6boMqb5RMomfkaXaS0",
+  authDomain: "petdetails-fd3e9.firebaseapp.com",
+  databaseURL: "https://petdetails-fd3e9-default-rtdb.firebaseio.com",
+  projectId: "petdetails-fd3e9",
+  storageBucket: "petdetails-fd3e9.firebasestorage.app",
+  messagingSenderId: "788205084009",
+  appId: "1:788205084009:web:0c9ba295b715d79c86f1f8",
+  measurementId: "G-9L7947EZZ6"
+};
 
-      pets.forEach((pet, index) => {
-        const card = document.createElement("div");
-        card.classList.add("card");
-        card.innerHTML = `
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const petList = document.getElementById("petList");
+    const searchInput = document.getElementById("search");
+
+    async function loadPets() {
+      const snapshot = await db.collection("pets").get();
+      const pets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      displayPets(pets);
+    }
+
+    function displayPets(pets) {
+      petList.innerHTML = "";
+      pets.forEach(pet => {
+        const div = document.createElement("div");
+        div.className = "pet-card";
+        div.innerHTML = `
           <h3>${pet.name}</h3>
-          <button onclick="toggleDetails(${index})">Show More</button>
-          <div id="details-${index}" style="display:none; margin-top:10px;">
-            <p><strong>Type:</strong> ${pet.type}</p>
-            <p><strong>Age:</strong> ${pet.age} years</p>
-            <p><strong>Weight:</strong> ${pet.weight} kg</p>
-            <p><strong>Likes:</strong> ${pet.likes}</p>
+          <button onclick="showMore('${pet.id}')">Show More</button>
+          <div id="details-${pet.id}" style="display:none; margin-top:10px;">
+            <p><b>Age:</b> ${pet.age}</p>
+            <p><b>Weight:</b> ${pet.weight} kg</p>
+            <p><b>Type:</b> ${pet.type}</p>
+            <p><b>Likes:</b> ${pet.likes}</p>
           </div>
         `;
-        container.appendChild(card);
+        petList.appendChild(div);
       });
     }
 
-    function toggleDetails(index) {
-      const details = document.getElementById(`details-${index}`);
-      if (details.style.display === "none") {
-        details.style.display = "block";
-      } else {
-        details.style.display = "none";
-      }
-    }
-
-    function searchPet() {
-      const searchValue = document.getElementById("searchBox").value.toLowerCase();
-      const pets = JSON.parse(localStorage.getItem("pets")) || [];
-      const container = document.getElementById("petContainer");
-      container.innerHTML = "";
-
-      const filteredPets = pets.filter(p => p.name.toLowerCase().includes(searchValue));
-
-      if (filteredPets.length === 0) {
-        container.innerHTML = "<p>No matching pets found!</p>";
-        return;
-      }
-
-      filteredPets.forEach((pet, index) => {
-        const card = document.createElement("div");
-        card.classList.add("card");
-        card.innerHTML = `
-          <h3>${pet.name}</h3>
-          <button onclick="toggleSearchDetails(${index})">Show More</button>
-          <div id="search-details-${index}" style="display:none; margin-top:10px;">
-            <p><strong>Type:</strong> ${pet.type}</p>
-            <p><strong>Age:</strong> ${pet.age} years</p>
-            <p><strong>Weight:</strong> ${pet.weight} kg</p>
-            <p><strong>Likes:</strong> ${pet.likes}</p>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function toggleSearchDetails(index) {
-      const details = document.getElementById(`search-details-${index}`);
+    window.showMore = (id) => {
+      const details = document.getElementById(`details-${id}`);
       details.style.display = details.style.display === "none" ? "block" : "none";
-    }
+    };
 
-    window.onload = loadPets;
+    searchInput.addEventListener("input", async () => {
+      const term = searchInput.value.toLowerCase();
+      const snapshot = await db.collection("pets").get();
+      const pets = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(p => p.name.toLowerCase().includes(term));
+      displayPets(pets);
+    });
+
+    loadPets();
   </script>
 
 </body>
 </html>
+
