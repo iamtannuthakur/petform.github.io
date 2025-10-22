@@ -92,36 +92,46 @@
     <button type="submit">Submit</button>
     <button type="button" class="details-btn" onclick="location.href='showdetails.html'">Show Details</button>
   </form>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-  <script>
-    document.getElementById("petForm").addEventListener("submit", function(event) {
-      event.preventDefault();
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAH5I_sIv9EIpbVf6boMqb5RMomfkaXaS0",
+  authDomain: "petdetails-fd3e9.firebaseapp.com",
+  databaseURL: "https://petdetails-fd3e9-default-rtdb.firebaseio.com",
+  projectId: "petdetails-fd3e9",
+  storageBucket: "petdetails-fd3e9.firebasestorage.app",
+  messagingSenderId: "788205084009",
+  appId: "1:788205084009:web:0c9ba295b715d79c86f1f8",
+  measurementId: "G-9L7947EZZ6"
+};
 
-      const pet = {
-        name: document.getElementById("petName").value.trim(),
-        age: parseInt(document.getElementById("petAge").value),
-        weight: parseFloat(document.getElementById("petWeight").value),
-        type: document.getElementById("petType").value,
-        likes: document.getElementById("petLikes").value.trim()
-      };
+// Initialize 
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-      // Get existing pets or create empty array
-      let pets = JSON.parse(localStorage.getItem("pets")) || [];
+  // Save pet data to Firebase when form submitted
+  document.getElementById("petForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-      // Add new pet
-      pets.push(pet);
+    const pet = {
+      name: document.getElementById("petName").value,
+      age: parseInt(document.getElementById("petAge").value),
+      weight: parseFloat(document.getElementById("petWeight").value),
+      type: document.getElementById("petType").value,
+      likes: document.getElementById("petLikes").value
+    };
 
-      // Save back to localStorage
-      localStorage.setItem("pets", JSON.stringify(pets));
-
-      console.log("Pet Object:", pet);
-      console.log("JSON Format:", JSON.stringify(pet, null, 2));
-
-      alert("Pet added successfully! You can view it on 'Show Details' page.");
-
-      this.reset();
-    });
-  </script>
-
+    await push(ref(db, "pets"), pet);
+    alert("Pet saved successfully 🌸");
+    document.getElementById("petForm").reset();
+  });
+</script>
 </body>
 </html>
