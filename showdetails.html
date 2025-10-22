@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Show Pet Details</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #ffd6d6, #ffecc7);
+      padding: 40px;
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+    }
+    input {
+      width: 300px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-top: 15px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+    }
+    .card {
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+      width: 350px;
+      padding: 20px;
+      text-align: left;
+      margin-bottom: 15px;
+    }
+    .card h3 {
+      margin: 0;
+      color: #444;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .back-btn {
+      background-color: #28a745;
+      margin-bottom: 20px;
+    }
+    .back-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Pet List</h2>
+  <button class="back-btn" onclick="location.href='index.html'">Add More Pets</button>
+  <br>
+  <input type="text" id="searchBox" placeholder="Search pet by name..." onkeyup="searchPet()">
+
+  <div class="container" id="petContainer"></div>
+
+  <script>
+    function loadPets() {
+      const pets = JSON.parse(localStorage.getItem("pets")) || [];
+      const container = document.getElementById("petContainer");
+      container.innerHTML = "";
+
+      if (pets.length === 0) {
+        container.innerHTML = "<p>No pets found! Add some from the Add Pet page.</p>";
+        return;
+      }
+
+      pets.forEach((pet, index) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+          <h3>${pet.name}</h3>
+          <button onclick="toggleDetails(${index})">Show More</button>
+          <div id="details-${index}" style="display:none; margin-top:10px;">
+            <p><strong>Type:</strong> ${pet.type}</p>
+            <p><strong>Age:</strong> ${pet.age} years</p>
+            <p><strong>Weight:</strong> ${pet.weight} kg</p>
+            <p><strong>Likes:</strong> ${pet.likes}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleDetails(index) {
+      const details = document.getElementById(`details-${index}`);
+      if (details.style.display === "none") {
+        details.style.display = "block";
+      } else {
+        details.style.display = "none";
+      }
+    }
+
+    function searchPet() {
+      const searchValue = document.getElementById("searchBox").value.toLowerCase();
+      const pets = JSON.parse(localStorage.getItem("pets")) || [];
+      const container = document.getElementById("petContainer");
+      container.innerHTML = "";
+
+      const filteredPets = pets.filter(p => p.name.toLowerCase().includes(searchValue));
+
+      if (filteredPets.length === 0) {
+        container.innerHTML = "<p>No matching pets found!</p>";
+        return;
+      }
+
+      filteredPets.forEach((pet, index) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+          <h3>${pet.name}</h3>
+          <button onclick="toggleSearchDetails(${index})">Show More</button>
+          <div id="search-details-${index}" style="display:none; margin-top:10px;">
+            <p><strong>Type:</strong> ${pet.type}</p>
+            <p><strong>Age:</strong> ${pet.age} years</p>
+            <p><strong>Weight:</strong> ${pet.weight} kg</p>
+            <p><strong>Likes:</strong> ${pet.likes}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleSearchDetails(index) {
+      const details = document.getElementById(`search-details-${index}`);
+      details.style.display = details.style.display === "none" ? "block" : "none";
+    }
+
+    window.onload = loadPets;
+  </script>
+
+</body>
+</html>
